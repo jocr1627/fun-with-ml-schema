@@ -1,0 +1,82 @@
+type Model {
+  id: ID!
+  name: String!
+  urls: [String]!
+}
+
+type GenerateJob {
+  id: ID!
+  text: [String]
+}
+
+type TrainingJob {
+  batch: Int
+  epoch: Int
+  id: ID!
+  loss: Float
+}
+
+input CreateModelInput {
+  name: String!
+}
+
+input DeleteModelInput {
+  id: ID!
+}
+
+input GenerateJobInput {
+  id: ID!
+}
+
+input GenerateTextFromModelInput {
+  count: Int
+  id: ID!
+  maxLength: Int
+  prefix: String
+  temperature: Float
+}
+
+input TrainingJobInput {
+  id: ID!
+}
+
+input TrainModelInput {
+  epochs: Int
+  id: ID!
+  force: Boolean
+  selectors: [String]
+  url: String!
+}
+
+input UpdateModelInput {
+  id: ID!
+  name: String!
+}
+
+type Mutation {
+  createModel(input: CreateModelInput!): Model
+  deleteModel(input: DeleteModelInput!): Model
+  updateModel(input: UpdateModelInput!): Model
+}
+
+input ModelInput {
+  id: ID!
+}
+
+type Query {
+  generateJob(input: GenerateJobInput!): GenerateJob
+  model(input: ModelInput!): Model
+  models: [Model]
+  trainingJob(input: TrainingJobInput!): TrainingJob
+}
+
+type Subscription {
+  generateTextFromModel(input: GenerateTextFromModelInput!): GenerateJob
+  trainModel(input: TrainModelInput!): TrainingJob
+}
+
+schema {
+  mutation: Mutation
+  query: Query
+  subscription: Subscription
+}

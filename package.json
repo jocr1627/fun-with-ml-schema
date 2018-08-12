@@ -1,0 +1,24 @@
+{
+  "name": "fun-with-ml-schema",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "types": "dist/types.d.ts",
+  "scripts": {
+    "build": "npm run clean && npm run generate-types && tsc",
+    "clean": "rm -rf dist",
+    "generate-types": "gql-gen --out=src/types.ts --schema=src/index.js --template=graphql-codegen-typescript-template && node src/patch-subscription-resolvers.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "graphql-code-generator": "^0.10.7",
+    "graphql-codegen-typescript-template": "^0.10.7",
+    "prettier": "^1.14.2",
+    "typescript": "^3.0.1"
+  },
+  "dependencies": {
+    "graphql": "^0.13.2"
+  }
+}
