@@ -37,6 +37,7 @@ export interface Query {
 
 export interface GenerateJob {
   id: string;
+  status: JobStatus;
   text?: (string | null)[] | null;
 }
 
@@ -51,17 +52,20 @@ export interface TrainingJob {
   epoch?: number | null;
   id: string;
   loss?: number | null;
+  status: JobStatus;
 }
 
 export interface Mutation {
   createModel?: Model | null;
   deleteModel?: Model | null;
+  generateTextFromModel?: GenerateJob | null;
+  trainModel?: TrainingJob | null;
   updateModel?: Model | null;
 }
 
 export interface Subscription {
-  generateTextFromModel?: GenerateJob | null;
-  trainModel?: TrainingJob | null;
+  batchCompleted?: TrainingJob | null;
+  textGenerated?: GenerateJob | null;
 }
 
 export interface GenerateJobInput {
@@ -84,11 +88,6 @@ export interface DeleteModelInput {
   id: string;
 }
 
-export interface UpdateModelInput {
-  id: string;
-  name: string;
-}
-
 export interface GenerateTextFromModelInput {
   count?: number | null;
   id: string;
@@ -103,6 +102,11 @@ export interface TrainModelInput {
   force?: boolean | null;
   selectors?: (string | null)[] | null;
   url: string;
+}
+
+export interface UpdateModelInput {
+  id: string;
+  name: string;
 }
 export interface GenerateJobQueryArgs {
   input: GenerateJobInput;
@@ -119,14 +123,20 @@ export interface CreateModelMutationArgs {
 export interface DeleteModelMutationArgs {
   input: DeleteModelInput;
 }
+export interface GenerateTextFromModelMutationArgs {
+  input: GenerateTextFromModelInput;
+}
+export interface TrainModelMutationArgs {
+  input: TrainModelInput;
+}
 export interface UpdateModelMutationArgs {
   input: UpdateModelInput;
 }
-export interface GenerateTextFromModelSubscriptionArgs {
-  input: GenerateTextFromModelInput;
-}
-export interface TrainModelSubscriptionArgs {
-  input: TrainModelInput;
+
+export enum JobStatus {
+  ACTIVE = 'ACTIVE',
+  DONE = 'DONE',
+  PENDING = 'PENDING'
 }
 
 export namespace QueryResolvers {
@@ -173,6 +183,7 @@ export namespace QueryResolvers {
 export namespace GenerateJobResolvers {
   export interface Resolvers<Context = any> {
     id?: IdResolver<string, any, Context>;
+    status?: StatusResolver<JobStatus, any, Context>;
     text?: TextResolver<(string | null)[] | null, any, Context>;
   }
 
@@ -181,6 +192,11 @@ export namespace GenerateJobResolvers {
     Parent,
     Context
   >;
+  export type StatusResolver<
+    R = JobStatus,
+    Parent = any,
+    Context = any
+  > = Resolver<R, Parent, Context>;
   export type TextResolver<
     R = (string | null)[] | null,
     Parent = any,
@@ -218,6 +234,7 @@ export namespace TrainingJobResolvers {
     epoch?: EpochResolver<number | null, any, Context>;
     id?: IdResolver<string, any, Context>;
     loss?: LossResolver<number | null, any, Context>;
+    status?: StatusResolver<JobStatus, any, Context>;
   }
 
   export type BatchResolver<
@@ -240,12 +257,23 @@ export namespace TrainingJobResolvers {
     Parent = any,
     Context = any
   > = Resolver<R, Parent, Context>;
+  export type StatusResolver<
+    R = JobStatus,
+    Parent = any,
+    Context = any
+  > = Resolver<R, Parent, Context>;
 }
 
 export namespace MutationResolvers {
   export interface Resolvers<Context = any> {
     createModel?: CreateModelResolver<Model | null, any, Context>;
     deleteModel?: DeleteModelResolver<Model | null, any, Context>;
+    generateTextFromModel?: GenerateTextFromModelResolver<
+      GenerateJob | null,
+      any,
+      Context
+    >;
+    trainModel?: TrainModelResolver<TrainingJob | null, any, Context>;
     updateModel?: UpdateModelResolver<Model | null, any, Context>;
   }
 
@@ -267,6 +295,24 @@ export namespace MutationResolvers {
     input: DeleteModelInput;
   }
 
+  export type GenerateTextFromModelResolver<
+    R = GenerateJob | null,
+    Parent = any,
+    Context = any
+  > = Resolver<R, Parent, Context, GenerateTextFromModelArgs>;
+  export interface GenerateTextFromModelArgs {
+    input: GenerateTextFromModelInput;
+  }
+
+  export type TrainModelResolver<
+    R = TrainingJob | null,
+    Parent = any,
+    Context = any
+  > = Resolver<R, Parent, Context, TrainModelArgs>;
+  export interface TrainModelArgs {
+    input: TrainModelInput;
+  }
+
   export type UpdateModelResolver<
     R = Model | null,
     Parent = any,
@@ -279,29 +325,18 @@ export namespace MutationResolvers {
 
 export namespace SubscriptionResolvers {
   export interface Resolvers<Context = any> {
-    generateTextFromModel?: GenerateTextFromModelResolver<
-      GenerateJob | null,
-      any,
-      Context
-    >;
-    trainModel?: TrainModelResolver<TrainingJob | null, any, Context>;
+    batchCompleted?: BatchCompletedResolver<TrainingJob | null, any, Context>;
+    textGenerated?: TextGeneratedResolver<GenerateJob | null, any, Context>;
   }
 
-  export type GenerateTextFromModelResolver<
-    R = GenerateJob | null,
-    Parent = any,
-    Context = any
-  > = SubscriptionResolver<R, Parent, Context, GenerateTextFromModelArgs>;
-  export interface GenerateTextFromModelArgs {
-    input: GenerateTextFromModelInput;
-  }
-
-  export type TrainModelResolver<
+  export type BatchCompletedResolver<
     R = TrainingJob | null,
     Parent = any,
     Context = any
-  > = SubscriptionResolver<R, Parent, Context, TrainModelArgs>;
-  export interface TrainModelArgs {
-    input: TrainModelInput;
-  }
+  > = SubscriptionResolver<R, Parent, Context>;
+  export type TextGeneratedResolver<
+    R = GenerateJob | null,
+    Parent = any,
+    Context = any
+  > = SubscriptionResolver<R, Parent, Context>;
 }

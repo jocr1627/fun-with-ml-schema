@@ -4,8 +4,15 @@ type Model {
   urls: [String]!
 }
 
+enum JobStatus {
+  ACTIVE
+  DONE
+  PENDING
+}
+
 type GenerateJob {
   id: ID!
+  status: JobStatus!
   text: [String]
 }
 
@@ -14,6 +21,7 @@ type TrainingJob {
   epoch: Int
   id: ID!
   loss: Float
+  status: JobStatus!
 }
 
 input CreateModelInput {
@@ -56,6 +64,8 @@ input UpdateModelInput {
 type Mutation {
   createModel(input: CreateModelInput!): Model
   deleteModel(input: DeleteModelInput!): Model
+  generateTextFromModel(input: GenerateTextFromModelInput!): GenerateJob
+  trainModel(input: TrainModelInput!): TrainingJob
   updateModel(input: UpdateModelInput!): Model
 }
 
@@ -71,8 +81,8 @@ type Query {
 }
 
 type Subscription {
-  generateTextFromModel(input: GenerateTextFromModelInput!): GenerateJob
-  trainModel(input: TrainModelInput!): TrainingJob
+  batchCompleted: TrainingJob
+  textGenerated: GenerateJob
 }
 
 schema {

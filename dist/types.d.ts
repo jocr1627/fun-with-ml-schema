@@ -12,6 +12,7 @@ export interface Query {
 }
 export interface GenerateJob {
     id: string;
+    status: JobStatus;
     text?: (string | null)[] | null;
 }
 export interface Model {
@@ -24,15 +25,18 @@ export interface TrainingJob {
     epoch?: number | null;
     id: string;
     loss?: number | null;
+    status: JobStatus;
 }
 export interface Mutation {
     createModel?: Model | null;
     deleteModel?: Model | null;
+    generateTextFromModel?: GenerateJob | null;
+    trainModel?: TrainingJob | null;
     updateModel?: Model | null;
 }
 export interface Subscription {
-    generateTextFromModel?: GenerateJob | null;
-    trainModel?: TrainingJob | null;
+    batchCompleted?: TrainingJob | null;
+    textGenerated?: GenerateJob | null;
 }
 export interface GenerateJobInput {
     id: string;
@@ -49,10 +53,6 @@ export interface CreateModelInput {
 export interface DeleteModelInput {
     id: string;
 }
-export interface UpdateModelInput {
-    id: string;
-    name: string;
-}
 export interface GenerateTextFromModelInput {
     count?: number | null;
     id: string;
@@ -66,6 +66,10 @@ export interface TrainModelInput {
     force?: boolean | null;
     selectors?: (string | null)[] | null;
     url: string;
+}
+export interface UpdateModelInput {
+    id: string;
+    name: string;
 }
 export interface GenerateJobQueryArgs {
     input: GenerateJobInput;
@@ -82,14 +86,19 @@ export interface CreateModelMutationArgs {
 export interface DeleteModelMutationArgs {
     input: DeleteModelInput;
 }
+export interface GenerateTextFromModelMutationArgs {
+    input: GenerateTextFromModelInput;
+}
+export interface TrainModelMutationArgs {
+    input: TrainModelInput;
+}
 export interface UpdateModelMutationArgs {
     input: UpdateModelInput;
 }
-export interface GenerateTextFromModelSubscriptionArgs {
-    input: GenerateTextFromModelInput;
-}
-export interface TrainModelSubscriptionArgs {
-    input: TrainModelInput;
+export declare enum JobStatus {
+    ACTIVE = "ACTIVE",
+    DONE = "DONE",
+    PENDING = "PENDING"
 }
 export declare namespace QueryResolvers {
     interface Resolvers<Context = any> {
@@ -115,9 +124,11 @@ export declare namespace QueryResolvers {
 export declare namespace GenerateJobResolvers {
     interface Resolvers<Context = any> {
         id?: IdResolver<string, any, Context>;
+        status?: StatusResolver<JobStatus, any, Context>;
         text?: TextResolver<(string | null)[] | null, any, Context>;
     }
     type IdResolver<R = string, Parent = any, Context = any> = Resolver<R, Parent, Context>;
+    type StatusResolver<R = JobStatus, Parent = any, Context = any> = Resolver<R, Parent, Context>;
     type TextResolver<R = (string | null)[] | null, Parent = any, Context = any> = Resolver<R, Parent, Context>;
 }
 export declare namespace ModelResolvers {
@@ -136,16 +147,20 @@ export declare namespace TrainingJobResolvers {
         epoch?: EpochResolver<number | null, any, Context>;
         id?: IdResolver<string, any, Context>;
         loss?: LossResolver<number | null, any, Context>;
+        status?: StatusResolver<JobStatus, any, Context>;
     }
     type BatchResolver<R = number | null, Parent = any, Context = any> = Resolver<R, Parent, Context>;
     type EpochResolver<R = number | null, Parent = any, Context = any> = Resolver<R, Parent, Context>;
     type IdResolver<R = string, Parent = any, Context = any> = Resolver<R, Parent, Context>;
     type LossResolver<R = number | null, Parent = any, Context = any> = Resolver<R, Parent, Context>;
+    type StatusResolver<R = JobStatus, Parent = any, Context = any> = Resolver<R, Parent, Context>;
 }
 export declare namespace MutationResolvers {
     interface Resolvers<Context = any> {
         createModel?: CreateModelResolver<Model | null, any, Context>;
         deleteModel?: DeleteModelResolver<Model | null, any, Context>;
+        generateTextFromModel?: GenerateTextFromModelResolver<GenerateJob | null, any, Context>;
+        trainModel?: TrainModelResolver<TrainingJob | null, any, Context>;
         updateModel?: UpdateModelResolver<Model | null, any, Context>;
     }
     type CreateModelResolver<R = Model | null, Parent = any, Context = any> = Resolver<R, Parent, Context, CreateModelArgs>;
@@ -156,6 +171,14 @@ export declare namespace MutationResolvers {
     interface DeleteModelArgs {
         input: DeleteModelInput;
     }
+    type GenerateTextFromModelResolver<R = GenerateJob | null, Parent = any, Context = any> = Resolver<R, Parent, Context, GenerateTextFromModelArgs>;
+    interface GenerateTextFromModelArgs {
+        input: GenerateTextFromModelInput;
+    }
+    type TrainModelResolver<R = TrainingJob | null, Parent = any, Context = any> = Resolver<R, Parent, Context, TrainModelArgs>;
+    interface TrainModelArgs {
+        input: TrainModelInput;
+    }
     type UpdateModelResolver<R = Model | null, Parent = any, Context = any> = Resolver<R, Parent, Context, UpdateModelArgs>;
     interface UpdateModelArgs {
         input: UpdateModelInput;
@@ -163,15 +186,9 @@ export declare namespace MutationResolvers {
 }
 export declare namespace SubscriptionResolvers {
     interface Resolvers<Context = any> {
-        generateTextFromModel?: GenerateTextFromModelResolver<GenerateJob | null, any, Context>;
-        trainModel?: TrainModelResolver<TrainingJob | null, any, Context>;
+        batchCompleted?: BatchCompletedResolver<TrainingJob | null, any, Context>;
+        textGenerated?: TextGeneratedResolver<GenerateJob | null, any, Context>;
     }
-    type GenerateTextFromModelResolver<R = GenerateJob | null, Parent = any, Context = any> = SubscriptionResolver<R, Parent, Context, GenerateTextFromModelArgs>;
-    interface GenerateTextFromModelArgs {
-        input: GenerateTextFromModelInput;
-    }
-    type TrainModelResolver<R = TrainingJob | null, Parent = any, Context = any> = SubscriptionResolver<R, Parent, Context, TrainModelArgs>;
-    interface TrainModelArgs {
-        input: TrainModelInput;
-    }
+    type BatchCompletedResolver<R = TrainingJob | null, Parent = any, Context = any> = SubscriptionResolver<R, Parent, Context>;
+    type TextGeneratedResolver<R = GenerateJob | null, Parent = any, Context = any> = SubscriptionResolver<R, Parent, Context>;
 }

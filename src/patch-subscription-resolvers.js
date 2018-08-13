@@ -10,8 +10,8 @@
  */
 const fs = require('fs');
 const subscriptionResolvers = [
-  'GenerateTextFromModelResolver',
-  'TrainModelResolver'
+  'BatchCompletedResolver',
+  'TextGeneratedResolver'
 ];
 const subscriptionResolversRegex =
   '(' +

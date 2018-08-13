@@ -2,7 +2,7 @@
   "name": "fun-with-ml-schema",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.js",
+  "main": "dist/types.js",
   "types": "dist/types.d.ts",
   "scripts": {
     "build": "npm run clean && npm run generate-types && tsc",
