@@ -11,6 +11,7 @@ export interface Query {
     trainingJob?: TrainingJob | null;
 }
 export interface GenerateJob {
+    errors: (string | null)[];
     id: string;
     status: JobStatus;
     text?: (string | null)[] | null;
@@ -23,6 +24,7 @@ export interface Model {
 export interface TrainingJob {
     batch?: number | null;
     epoch?: number | null;
+    errors?: (string | null)[] | null;
     id: string;
     loss?: number | null;
     status: JobStatus;
@@ -98,6 +100,7 @@ export interface UpdateModelMutationArgs {
 export declare enum JobStatus {
     ACTIVE = "ACTIVE",
     DONE = "DONE",
+    ERROR = "ERROR",
     PENDING = "PENDING"
 }
 export declare namespace QueryResolvers {
@@ -123,10 +126,12 @@ export declare namespace QueryResolvers {
 }
 export declare namespace GenerateJobResolvers {
     interface Resolvers<Context = any> {
+        errors?: ErrorsResolver<(string | null)[], any, Context>;
         id?: IdResolver<string, any, Context>;
         status?: StatusResolver<JobStatus, any, Context>;
         text?: TextResolver<(string | null)[] | null, any, Context>;
     }
+    type ErrorsResolver<R = (string | null)[], Parent = any, Context = any> = Resolver<R, Parent, Context>;
     type IdResolver<R = string, Parent = any, Context = any> = Resolver<R, Parent, Context>;
     type StatusResolver<R = JobStatus, Parent = any, Context = any> = Resolver<R, Parent, Context>;
     type TextResolver<R = (string | null)[] | null, Parent = any, Context = any> = Resolver<R, Parent, Context>;
@@ -145,12 +150,14 @@ export declare namespace TrainingJobResolvers {
     interface Resolvers<Context = any> {
         batch?: BatchResolver<number | null, any, Context>;
         epoch?: EpochResolver<number | null, any, Context>;
+        errors?: ErrorsResolver<(string | null)[] | null, any, Context>;
         id?: IdResolver<string, any, Context>;
         loss?: LossResolver<number | null, any, Context>;
         status?: StatusResolver<JobStatus, any, Context>;
     }
     type BatchResolver<R = number | null, Parent = any, Context = any> = Resolver<R, Parent, Context>;
     type EpochResolver<R = number | null, Parent = any, Context = any> = Resolver<R, Parent, Context>;
+    type ErrorsResolver<R = (string | null)[] | null, Parent = any, Context = any> = Resolver<R, Parent, Context>;
     type IdResolver<R = string, Parent = any, Context = any> = Resolver<R, Parent, Context>;
     type LossResolver<R = number | null, Parent = any, Context = any> = Resolver<R, Parent, Context>;
     type StatusResolver<R = JobStatus, Parent = any, Context = any> = Resolver<R, Parent, Context>;

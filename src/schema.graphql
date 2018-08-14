@@ -7,10 +7,12 @@ type Model {
 enum JobStatus {
   ACTIVE
   DONE
+  ERROR
   PENDING
 }
 
 type GenerateJob {
+  errors: [String]!
   id: ID!
   status: JobStatus!
   text: [String]
@@ -19,6 +21,7 @@ type GenerateJob {
 type TrainingJob {
   batch: Int
   epoch: Int
+  errors: [String]
   id: ID!
   loss: Float
   status: JobStatus!

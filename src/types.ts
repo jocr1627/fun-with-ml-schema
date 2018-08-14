@@ -36,6 +36,7 @@ export interface Query {
 }
 
 export interface GenerateJob {
+  errors: (string | null)[];
   id: string;
   status: JobStatus;
   text?: (string | null)[] | null;
@@ -50,6 +51,7 @@ export interface Model {
 export interface TrainingJob {
   batch?: number | null;
   epoch?: number | null;
+  errors?: (string | null)[] | null;
   id: string;
   loss?: number | null;
   status: JobStatus;
@@ -136,6 +138,7 @@ export interface UpdateModelMutationArgs {
 export enum JobStatus {
   ACTIVE = 'ACTIVE',
   DONE = 'DONE',
+  ERROR = 'ERROR',
   PENDING = 'PENDING'
 }
 
@@ -182,11 +185,17 @@ export namespace QueryResolvers {
 
 export namespace GenerateJobResolvers {
   export interface Resolvers<Context = any> {
+    errors?: ErrorsResolver<(string | null)[], any, Context>;
     id?: IdResolver<string, any, Context>;
     status?: StatusResolver<JobStatus, any, Context>;
     text?: TextResolver<(string | null)[] | null, any, Context>;
   }
 
+  export type ErrorsResolver<
+    R = (string | null)[],
+    Parent = any,
+    Context = any
+  > = Resolver<R, Parent, Context>;
   export type IdResolver<R = string, Parent = any, Context = any> = Resolver<
     R,
     Parent,
@@ -232,6 +241,7 @@ export namespace TrainingJobResolvers {
   export interface Resolvers<Context = any> {
     batch?: BatchResolver<number | null, any, Context>;
     epoch?: EpochResolver<number | null, any, Context>;
+    errors?: ErrorsResolver<(string | null)[] | null, any, Context>;
     id?: IdResolver<string, any, Context>;
     loss?: LossResolver<number | null, any, Context>;
     status?: StatusResolver<JobStatus, any, Context>;
@@ -244,6 +254,11 @@ export namespace TrainingJobResolvers {
   > = Resolver<R, Parent, Context>;
   export type EpochResolver<
     R = number | null,
+    Parent = any,
+    Context = any
+  > = Resolver<R, Parent, Context>;
+  export type ErrorsResolver<
+    R = (string | null)[] | null,
     Parent = any,
     Context = any
   > = Resolver<R, Parent, Context>;
